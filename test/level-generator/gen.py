@@ -1,6 +1,6 @@
 
 from enum import Enum
-from itertools import combinations
+from itertools import combinations, product, permutations, combinations_with_replacement
 from pprint import pprint
 
 
@@ -43,13 +43,10 @@ REGLAS:
 # Constrains
 REMOVE_DIRECT_CONNECTIONS = 1       # Don't allow wires connecting directly without a gate
 REMOVE_SAME_GATE_CONNECTIONS = 2    # Don't allow connections withing the same gate
-ENSURE_ALL_CONNECTED = 3            # Ensure all inputs and outputs are used for connections
-
 
 def generate_connections(inputs, outputs, constrains = {
     REMOVE_DIRECT_CONNECTIONS,
     REMOVE_SAME_GATE_CONNECTIONS,
-    ENSURE_ALL_CONNECTED
 }):
     """
     Generate all possible connections where:
@@ -65,55 +62,117 @@ def generate_connections(inputs, outputs, constrains = {
     list: A list of all possible valid connection configurations.
     """
     # Generate all possible mappings of inputs to outputs
-    input_output_pairs = [(output, inp) for output in outputs for inp in inputs]
-
-    # Generate all subsets of the pairs to cover all combinations
-    all_combinations = []
-    for r in range(1, len(input_output_pairs) + 1):
-        all_combinations.extend(combinations(input_output_pairs, r))
-        
-    valid_connections = all_combinations
-    #print("All combs: ", )
-    #pprint(all_combinations)
-    
-    # Remove combinations where a gate connects to itself
-    if REMOVE_SAME_GATE_CONNECTIONS in constrains:
-        valid_connections = [
-            list(pair for pair in combination \
-            if pair[0].split(SEP)[0] != pair[1].split(SEP)[0]) \
-            for combination in valid_connections
-        ]
+    input_output_pairs = product(outputs, inputs) #[(output, inp) for output in outputs for inp in inputs]
 
     # Remove direct connections from circuit's inputs to circuit's outputs
     if REMOVE_DIRECT_CONNECTIONS in constrains:
-        valid_connections = [
-#            pair for combination in valid_connections for pair in combination]
-            list(pair for pair in combination \
-                if "".join(pair).count(SEP) != 0) \
-                for combination in valid_connections
-        ]
+        input_output_pairs = [pair for pair in input_output_pairs if "".join(pair).count(SEP) != 0]
 
-    # Filter combinations where each output is mapped to at most one input
-    valid_connections = [
-        combination for combination in valid_connections
-        if len(set(pair[1] for pair in combination)) == len(combination)
-    ]
+    if REMOVE_SAME_GATE_CONNECTIONS in constrains:
+        input_output_pairs = [pair for pair in input_output_pairs if pair[0].split(SEP)[0] != pair[1].split(SEP)[0]]
+
+    #print(input_output_pairs)
+    # Generate all subsets of the pairs to cover all combinations
+    #all_combinations = combinations(input_output_pairs, len(input_output_pairs))
+    #all_combinations = permutations(input_output_pairs, len(input_output_pairs))
+    all_combinations = []
+    for r in range(1, len(input_output_pairs) + 1):
+        all_combinations.extend(combinations(input_output_pairs, r))
+
+    #print("All combs")
+    #for i in all_combinations:
+    #    print(str(i).replace(' ', ''))
+    #print("Bien1", len(list(all_combinations)))
     
+    #print("Bien2", len(list(valid_combinations)))
+    #for i in list(valid_combinations):
+    #    print(len(set(item for pair in i for item in pair)))
+    #    #print(str(i).replace(' ', ''))
+    
+    # Remove connections where the same output (or circuit's input) connects to a same gate
+    combinations_without_overlapping = (
+        {(pair[0], pair[1].split(SEP)[0]):pair for pair in combination}.values() \
+        for combination in all_combinations
+    )
+    #for i in combinations_without_overlapping:
+    #    print(str(i).replace(' ', ''))
+    #print("Bien3", len(list(combinations_without_overlapping)))
     # Remove combinations where not all ins and outs are used
-    if ENSURE_ALL_CONNECTED in constrains:
-        valid_connections = [
-            combination for combination in valid_connections
-            if len(set(item for pair in combination for item in pair)) == len(inputs) + len(outputs)
-        ]
-    
+    valid_combinations = (
+        combination for combination in combinations_without_overlapping
+        if len(set(item for pair in combination for item in pair)) == len(inputs) + len(outputs)
+    )
     # Remove empty combinations and duplications
-    valid_connections = list({tuple(combination):None for combination in valid_connections if combination}.keys())
-    
-    return valid_connections
+    unique_combinations = {tuple(sorted(combination)):None for combination in valid_combinations if combination}.keys()
+    # print("To4", len(list(unique_combinations)))
+    # for i in sorted(unique_combinations):
+    #     print(str(i).replace(' ', ''))
+    #print("Bien4", len(list(valid_combinations)))
+    return unique_combinations
 
+def generate_formula(connections):
+    """
+    Generate the logical formula for the given circuit connections.
+    
+    Parameters:
+    connections (list): List of tuples representing the connections in the circuit.
+    
+    Returns:
+    dict: A dictionary where keys are output identifiers and values are the logical formulas.
+    """
+    from collections import defaultdict
+
+    # Initialize a dictionary to store the formulas for each output
+    formulas = defaultdict(str)
+
+    # Process each connection
+    for output, input_ in connections:
+        if '.' in input_:            
+            # Determine the gate and its inputs
+            gate, gate_input = input_.split('.', 2)
+            gate_name, _ = gate[:-1], gate[-1]
+            
+            # Replace the gate input with its formula if it already exists
+            if gate_input in formulas:
+                gate_input = formulas[gate_input]
+            else:
+                gate_input = gate_input.replace("in", "IN")
+
+            # Create the formula for the gate output
+            if gate_name == "NOT":
+                if formulas[output]:
+                    formulas[output] = f"~{gate_input}"
+                else:
+                    formulas[output] = gate_input
+            elif gate_name == "AND":
+                if formulas[output]:
+                    formulas[output] = f"({formulas[output]}&{gate_input})"
+                else:
+                    formulas[output] = gate_input
+            elif gate_name == "OR":
+                if formulas[output]:
+                    formulas[output] = f"({formulas[output]}|{gate_input})"
+                else:
+                    formulas[output] = gate_input
+            elif gate_name == "XOR":
+                if formulas[output]:
+                    formulas[output] = f"({formulas[output]}^{gate_input})"
+                else:
+                    formulas[output] = gate_input
+        else:
+            # input_ is a circuit's output
+            formulas[output] = input_
+
+    # Construct the final formula for each output
+    final_formulas = formulas
+    """for output in formulas:
+        if output.startswith("OUT"):
+            final_formulas[output] = formulas[output]
+    """
+    return final_formulas
 
 ## Each input of the level can go to one or more inputs of gates in the same or higher level
-def generate_all_levels(gates = [Gate.NOT], inputs = 1, outputs = 1):
+def generate_all_circuits(gates = [Gate.NOT], inputs = 1, outputs = 1):
     "Generates all possible circuits with the constrains defined"
 
     # Register all possible inputs
@@ -140,10 +199,18 @@ def generate_all_levels(gates = [Gate.NOT], inputs = 1, outputs = 1):
 
 if __name__ == '__main__':
 
-    #generate_all_levels([Gate.NOT], 1, 2)
-    o1 = [] #generate_all_levels([Gate.AND, Gate.NOT], 2, 1)
-    o2 = generate_all_levels([Gate.AND, Gate.AND], 2, 1)
+    #o1 = generate_all_circuits([Gate.NOT], 1, 1)
+    #o1 = generate_all_circuits([Gate.AND], 2, 1)
+    #o1 = generate_all_circuits([Gate.NOT, Gate.NOT], 1, 1)
+    #o1 = generate_all_circuits([Gate.AND, Gate.NOT], 2, 1)
+    #o1 = generate_all_circuits([Gate.AND, Gate.AND], 2, 1)
+    o1 = generate_all_circuits([Gate.AND, Gate.OR, Gate.NOT, Gate.XOR, Gate.AND], 3, 1)
     
-    #print("Connections:", )
-    pprint(sorted(o1), depth = 2); print("len", len(o1))
-    pprint(sorted(o2)); print("len", len(o2))
+    print("Circuits:", )
+    for i in sorted(o1):
+        print(str(i).replace(' ', ''))   
+    print("len", len(list(o1)))
+    #pprint(sorted(o2), depth = 2); print("len", len(o2))
+    #for i in o2[:1]:
+    #    print("For:", list(i))
+    #    print("Formula:", generate_formula(i))

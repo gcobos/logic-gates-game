@@ -30,8 +30,7 @@ void initializeControl()
     pinMode(SPIInputPin, INPUT);   // Input from buttons  
 
     SPI.beginTransaction(SPISettings(16000000, MSBFIRST, SPI_MODE0));
-    SPI.transfer(0);    // Input
-    SPI.transfer(0);    // Output
+    SPI.transfer16(0);
     digitalWrite(SPILatchPin, HIGH);
     digitalWrite(SPILatchPin, LOW);
 
@@ -117,43 +116,14 @@ void setEncoderMargins(uint8_t min, uint8_t max)
     encoderMaximum = max;
 }
 
-void setShiftRegistersOutput(uint8_t input, uint8_t output)
+void setShiftRegistersOutput(uint8_t input, uint8_t output, uint8_t check)
 {
-    SPI.transfer16(input << 8 | output);     // Input and output
+    regs.inputs = input;
+    regs.outputs = output;
+    regs.checks = check;
+    SPI.transfer16(regs.data);     // Input and output
     PORTB |= (1 << PB2); PORTB &= ~(1 << PB2);
-    //digitalWrite(SPILatchPin, HIGH);
-    //digitalWrite(SPILatchPin, LOW);
 }
-
-/* NOT USED FOR NOW 
-//byte ShiftInput = 255, ShiftOutput = 0, ShiftCheck=1;
-void shiftRegisterPinRead()
-{
-    //cli();
-    //Serial.print(".");
-    //for(j=0; j<100; j++) delayMicroseconds(50);
-
-    ShiftCheck=1;
-    for (int j=0; j < 8; j++) {
-        SPI.transfer(ShiftCheck);
-        SPI.transfer(ShiftOutput);
-        digitalWrite(SPILatchPin, HIGH);
-        digitalWrite(SPILatchPin, LOW);
-        //delayMicroseconds(500);
-        if (digitalRead(SPIInputPin) == HIGH) {
-            bitWrite(ShiftOutput, j, 1);
-        } else {
-            bitWrite(ShiftOutput, j, 0);
-        }
-        ShiftCheck = ShiftCheck << 1;
-    }//j
-    //sei();
-    SPI.transfer(255);
-    SPI.transfer(ShiftOutput);
-    digitalWrite(SPILatchPin, HIGH);
-    digitalWrite(SPILatchPin, LOW);
-}
-*/
 
 uint8_t getCircuitOutput()
 {
@@ -164,12 +134,17 @@ uint8_t getCircuitOutput()
 uint8_t evaluateLevelProgress(uint8_t level)
 {
     register uint8_t i, expected, actual;
-    register uint8_t progress = 0;
-    register uint8_t zeroes = 0;
-    for (i = 0; i < (1 << getLevelData()->input_bits); i++) {
+    uint8_t progress = 0;
+    uint8_t zeroes = 0;
+    uint8_t input_bits = getLevelData()->input_bits;
+    regs.outputs = 0;
+    regs.checks = 0;
+    for (i = 0; i < (1 << input_bits); i++) {
         expected = evaluateLevelInput(level, i);
         //setShiftRegistersOutput(i, expected);
-        SPI.transfer16(i << 8 | expected);
+        regs.inputs = i;
+        regs.outputs = expected;
+        SPI.transfer16(regs.data);
         PORTB |= (1 << PB2); PORTB &= ~(1 << PB2);
         // Read all analog inputs (circuit's output) removing A4 and A5
         // actual = getCircuitOutput();

@@ -45,9 +45,16 @@ void loop() {
         switch (currentState) {
             case STATE_WELCOME:
                 if (ticksInState == 0) {
-                    startPlaying(1);
+                    levelInput = 0b01010101;
+                    startPlaying(0);
                     showWelcomeScreen();
-                } else if (ticksInState > 20 * 3) {     // 3 secs
+                    setShiftRegistersOutput(levelInput, ~levelInput);
+                } else if (ticksInState < 20 * 6 && ticksInState % 10 == 0) {
+                    levelInput = ~levelInput;
+                    setShiftRegistersOutput(levelInput, ~levelInput);
+                } else if (ticksInState > 20 * 6) {     // 6 secs
+                    levelInput = 0;
+                    setShiftRegistersOutput(levelInput, levelInput);
                     currentState = STATE_LEVEL_SELECTION;
                     ticksInState = -1;
                 }
@@ -79,7 +86,7 @@ void loop() {
 #endif
                     currentState = STATE_PLAYING;
                     ticksInState = -1;
-                    startPlaying(2);
+                    startPlaying(1);
                 }
                 break;
             case STATE_PLAYING:
@@ -121,7 +128,7 @@ void loop() {
                     if (progress == 100) {
                         currentState = STATE_COMPLETED;
                         ticksInState = -1;
-                        startPlaying(3);
+                        startPlaying(2);
                     }
                 }
                 break;
@@ -132,7 +139,7 @@ void loop() {
                     currentLevel++;
                     if (currentLevel > getMaximumLevel()) {
                         currentLevel = 0;
-                        startPlaying(4);
+                        startPlaying(3);
                     }
                 }
                 if (onEncoderButtonPressed() && ticksInState > 50) {
