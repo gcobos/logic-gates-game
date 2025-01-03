@@ -56,6 +56,17 @@ void showLevelSelectionScreen(uint8_t level, bool redraw)
         // display.setCursor(0, 57);
         display.setCursor(32 - (display.getUTF8Width(getLevelData()->name) / 2), 57);
         display.print(getLevelData()->name);
+        display.setDrawColor(0);
+        display.drawBox(0, 60, 63, 75);
+        display.setDrawColor(1);
+        display.setCursor(7, 67);
+        display.print(F("Entradas:"));
+        buf[0] = '0' + getLevelData()->input_bits; buf[1] = 0;
+        display.print(buf);
+        display.setCursor(9, 75);
+        display.print(F("Salidas:"));
+        buf[0] = '0' + getLevelData()->output_bits; buf[1] = 0;
+        display.print(buf);
         for (uint8_t i = 0; i < 5; i++) {
             display.setCursor(0, 89 + 9*i);
             display.print(getLevelData()->desc[i]);
@@ -75,6 +86,7 @@ void showLevelPlayingScreen(uint8_t level, uint8_t progress, bool redraw)
         display.print(buf);
         display.setCursor(15, 89);
         display.print(toBin(getCircuitOutput()));
+        //display.print(toBin(evaluateLevelInput(level, getEncoderPosition())));
         display.setCursor(15, 119);
         display.print(toBin(getEncoderPosition()));
         display.setFont(u8g2_font_5x8_mf);

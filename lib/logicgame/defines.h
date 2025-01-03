@@ -21,6 +21,7 @@ constexpr uint8_t PROGMEM SPILatchPin = 10;  // Show output
 constexpr uint8_t PROGMEM SPIDataPin = 11;
 constexpr uint8_t PROGMEM SPIClockPin = 13;  // Shift bit
 constexpr uint8_t PROGMEM SPIInputPin = 2;
+constexpr uint8_t PROGMEM SPIDisable = 4;    // Output enable
 
 // Game states
 typedef enum {

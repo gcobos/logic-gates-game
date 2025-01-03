@@ -7,9 +7,9 @@
 volatile static union {
   uint16_t data;
   struct {
-    uint8_t checks:5;       // Checks (green)
     uint8_t outputs:5;      // Outputs (red)
     uint8_t inputs:5;       // Inputs (red)
+    uint8_t checks:5;       // Checks (green)
   };
 } regs;
 
@@ -30,7 +30,7 @@ void updateEncoderPosition();
 
 void encoderButtonPressed();
 
-void setShiftRegistersOutput(uint8_t input, uint8_t output, uint8_t check = 0);
+void setShiftRegistersOutput(uint8_t input = 0, uint8_t output = 0, uint8_t check = 0);
 
 // void shiftRegisterPinRead();
 

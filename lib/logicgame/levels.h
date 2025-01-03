@@ -12,14 +12,14 @@ typedef struct {
 union bits_t {
     uint8_t data;
     struct {
-		unsigned int a : 1; // Bit 0
-		unsigned int b : 1; // Bit 1
-		unsigned int c : 1; // Bit 2
-		unsigned int d : 1; // Bit 3
-		unsigned int e : 1; // Bit 4
-		unsigned int f : 1; // Bit 5
-		unsigned int g : 1; // Bit 6
-		unsigned int h : 1; // Bit 7
+		bool a : 1; // Bit 0
+		bool b : 1; // Bit 1
+		bool c : 1; // Bit 2
+		bool d : 1; // Bit 3
+		bool e : 1; // Bit 4
+		bool f : 1; // Bit 5
+		bool g : 1; // Bit 6
+		bool h : 1; // Bit 7
 	};
     bits_t(uint8_t value = 0) : data(value) {}
 

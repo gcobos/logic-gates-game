@@ -24,16 +24,18 @@ void initializeControl()
     attachPinChangeInterrupt(digitalPinToPCINT(encoderPinB), updateEncoderPosition, CHANGE);
 
     // Setup shift registers
+    pinMode(SPIDisable, OUTPUT);   // Disable outputs
+    digitalWrite(SPIDisable, HIGH); // Disable shift register's outputs
     pinMode(SPILatchPin, OUTPUT);  // Latch (store)
     pinMode(SPIDataPin, OUTPUT);   // Data in
     pinMode(SPIClockPin, OUTPUT);  // Clock (shift)
-    pinMode(SPIInputPin, INPUT);   // Input from buttons  
+    pinMode(SPIInputPin, INPUT);   // Input from buttons (not used now)
 
     SPI.beginTransaction(SPISettings(16000000, MSBFIRST, SPI_MODE0));
-    SPI.transfer16(0);
-    digitalWrite(SPILatchPin, HIGH);
-    digitalWrite(SPILatchPin, LOW);
+    setShiftRegistersOutput();
+    digitalWrite(SPIDisable, LOW); // Enable shift register's outputs
 
+    // Setup inputs (logic circuit's output)
     pinMode(A0, INPUT);
     pinMode(A1, INPUT);
     pinMode(A2, INPUT);
@@ -122,6 +124,8 @@ void setShiftRegistersOutput(uint8_t input, uint8_t output, uint8_t check)
     regs.outputs = output;
     regs.checks = check;
     SPI.transfer16(regs.data);     // Input and output
+    digitalWrite(SPILatchPin, HIGH);
+    digitalWrite(SPILatchPin, LOW);
     PORTB |= (1 << PB2); PORTB &= ~(1 << PB2);
 }
 
@@ -141,7 +145,6 @@ uint8_t evaluateLevelProgress(uint8_t level)
     regs.checks = 0;
     for (i = 0; i < (1 << input_bits); i++) {
         expected = evaluateLevelInput(level, i);
-        //setShiftRegistersOutput(i, expected);
         regs.inputs = i;
         regs.outputs = expected;
         SPI.transfer16(regs.data);

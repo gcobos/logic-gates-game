@@ -79,7 +79,8 @@ void loop() {
 #endif
                     ticksInState = 0;
                 }
-                if (onEncoderButtonPressed() && ticksInState > 5) {
+                // Allow to go to play the level only after 0.5s
+                if (onEncoderButtonPressed() && ticksInState > 10) {
 #ifdef DEBUG
                     Serial.print(F("Button pressed at pos: "));
                     Serial.println(getEncoderPosition());
@@ -101,10 +102,11 @@ void loop() {
                     setEncoderMargins(0, (1 << getLevelData()->input_bits) - 1);
                     showLevelPlayingScreen(currentLevel, progress);
                 }
-                // Allow to transition back to level selection after 0.25s
-                if (onEncoderButtonPressed() && ticksInState > 5) {
+                // Allow to transition back to level selection after 1.5s
+                if (onEncoderButtonPressed() && ticksInState >= 30) {
                     currentState = STATE_LEVEL_SELECTION;
                     setEncoderPosition(currentLevel);
+                    setShiftRegistersOutput(0, 0);
                     ticksInState = -1;
                     break;
                 }
@@ -116,9 +118,9 @@ void loop() {
                     showLevelPlayingScreen(currentLevel, progress, false);
                     ticksInState = 20;
                 }
-                // Check completion and refresh screen every 4s
+                // Check completion and refresh screen every 2s
                 // If the level is completed (all inputs and outputs match expected on level)
-                if (ticksInState > 100) {
+                if (ticksInState > 60) {
                     progress = evaluateLevelProgress(currentLevel);
                     setShiftRegistersOutput(levelInput, evaluateLevelInput(currentLevel, levelInput));
                     showLevelPlayingScreen(currentLevel, progress, false);
@@ -133,8 +135,8 @@ void loop() {
                 }
                 break;
             case STATE_COMPLETED:
-                // Waits for the music to finish and refreshes screen, which offers to play next level
-                if (ticksInState == 50) {
+                // Waits still while the music plays, and then offers to play next level
+                if (ticksInState == 20) {
                     showLevelCompletionScreen(currentLevel);
                     currentLevel++;
                     if (currentLevel > getMaximumLevel()) {
@@ -142,7 +144,7 @@ void loop() {
                         startPlaying(3);
                     }
                 }
-                if (onEncoderButtonPressed() && ticksInState > 50) {
+                if (onEncoderButtonPressed() && ticksInState > 40) {
 #ifdef DEBUG
                     Serial.print(F("Button pressed at pos: "));
                     Serial.println(getEncoderPosition());
