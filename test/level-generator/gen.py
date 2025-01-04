@@ -201,10 +201,10 @@ if __name__ == '__main__':
 
     #o1 = generate_all_circuits([Gate.NOT], 1, 1)
     #o1 = generate_all_circuits([Gate.AND], 2, 1)
-    #o1 = generate_all_circuits([Gate.NOT, Gate.NOT], 1, 1)
+    o1 = generate_all_circuits([Gate.NOT, Gate.NOT], 1, 1)
     #o1 = generate_all_circuits([Gate.AND, Gate.NOT], 2, 1)
     #o1 = generate_all_circuits([Gate.AND, Gate.AND], 2, 1)
-    o1 = generate_all_circuits([Gate.AND, Gate.OR, Gate.NOT, Gate.XOR, Gate.AND], 3, 1)
+    #o1 = generate_all_circuits([Gate.AND, Gate.OR, Gate.NOT, Gate.XOR, Gate.AND], 3, 1)
     
     print("Circuits:", )
     for i in sorted(o1):
