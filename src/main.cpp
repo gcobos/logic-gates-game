@@ -128,6 +128,7 @@ void loop() {
 
                     // If progress is completed
                     if (progress == 100) {
+                        setShiftRegistersOutput(0, 0);
                         currentState = STATE_COMPLETED;
                         ticksInState = -1;
                         startPlaying(2);
