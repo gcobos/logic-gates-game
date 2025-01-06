@@ -7,35 +7,35 @@ static level_t level_data;
 
 
 const static level_t PROGMEM levels[] = {
-    //  Nivel   XXXXXXXXXXXXX                    1111111111111    2222222222222    3333333333333    4444444444444    5555555555555
-    { /*  0 */ "Puerta NOT",             1, 1, {"Invierte el",   "valor del bit", "de la entrada", "",              ""} },
-    { /*  1 */ "Buffer",                 1, 1, {"La salida es",  "siempre igual", "al valor  de",  "la entrada",    ""} },
-    { /*  2 */ "Puerta OR",              2, 1, {"La salida es",  "1 si al menos", "una  de  las",  "entradas es 1", ""} },
-    { /*  3 */ "Puerta AND",             2, 1, {"La salida da",  "1 cuando las",  "dos entradas",  "son 1",         ""} },
-    { /*  4 */ "Puerta XOR",             2, 1, {"La salida da",  "1 cuando las",  "dos entradas",  "son distintas", ""} },
-    { /*  5 */ "Puerta NOR",             2, 1, {"La salida da",  "1 cuando las",  "dos entradas",  "son 0",         ""} },
-    { /*  6 */ "Puerta NAND",            2, 1, {"La salida da",  "siempre uno",   "excepto si la", "entrada es",    "igual a 11"} },
-    { /*  7 */ "Permiso 1 bit",          2, 1, {"El primer bit", "de la entrada", "pasa si tiene", "permiso del",   "segundo bit"} },
-    { /*  8 */ "Comparador",             2, 1, {"Devuelve 1 si", "las entradas",  "son iguales",   "(puerta XNOR)", ""} },
-    { /*  9 */ "Siempre 1",              1, 1, {"La salida da",  "siempre 1",     "sin importar",  "el valor de",   "la entrada"} },
-    { /* 10 */ "Semáforo",               2, 1, {"La salida da",  "1 si el bit 2", "vale 1 y el",   "bit 1 vale 0.", "La entrada=10"} },
-    { /* 11 */ "¿Es par?",               2, 1, {"Devuelve 1 si", "el número de",  "la entrada es", "par (termina",  "en 0)"} },
-    { /* 12 */ "¿Menos que 2?",          2, 1, {"Devuelve 1 si", "el número de",  "la entrada es", "menor que 2",   "(00 ó 01)"} },
-    { /* 13 */ "¿Es impar?",             2, 1, {"Devuelve 1 si", "el número de",  "la entrada es", "impar (acaba",  "en 1)"} },
-    { /* 14 */ "Contraseña",             3, 1, {"La salida da",  "1 solamente",   "cuando la",     "entrada es",    "igual a 101"} },
-    { /* 15 */ "Selección",              3, 1, {"El bit 3 de",   "la entrada",    "decide cuál",   "bit pasará a",  "la salida"} },
-    { /* 16 */ "Suma de 1 bit",          2, 2, {"Suma los dos",  "bits  de  la",  "entrada, y da", "el resultado",  ""} },
-    { /* 17 */ "Palíndromo",             3, 1, {"La salida da",  "1 cuando la",   "entrada es un", "palíndromo",    ""} },
-    { /* 18 */ "Mayoría de 1s",          3, 1, {"La salida da",  "1 si más de",   "la mitad de",   "bits de la",    "entrada es 1"} },
-    { /* 19 */ "Señal Única",            3, 1, {"Devuelve 1 si", "solamente una", "entrada está",  "activa",        ""} },
-    { /* 20 */ "Contador",               3, 2, {"Escribe en la", "salida la",     "cantidad de",   "unos (1's) de", "la entrada"} },
-    { /* 21 */ "Suma 2 bits",            4, 3, {"Suma los dos",  "números  de 2", "bits, y da el", "resultado",     ""} },
-    { /* 22 */ "Decodificador",          2, 4, {"Enciende el",   "bit de salida", "indicado por",  "la entrada",    ""} },
-    { /* 23 */ "Selector 2bit",          5, 2, {"Elige cuál de", "las entradas",  "de 2 bits se",  "muestra a la",  "salida" } },
-    { /* 24 */ "Iguales o no?",          4, 1, {"La salida da",  "1 cuando las",  "2 entradas de", "2 bits son",    "iguales"} },
-    { /* 25 */ "Pasa la mayor",          4, 2, {"Muestra en la", "salida, la",    "entrada de 2",  "bits que sea",  "mayor"  } },
-    { /* 26 */ "Pasa la menor",          4, 2, {"Muestra en la", "salida, la",    "entrada de 2",  "bits más",      "pequeña"} },
-};  //  Nivel   XXXXXXXXXXXXX                   11111111111112222222222222333333333333344444444444445555555555555
+    //  Nivel   XXXXXXXXXXXXX                    1111111111111    2222222222222    3333333333333    4444444444444    5555555555555      Solutions
+    { /*  0 */ "Puerta NOT",             1, 1, {"Invierte el",   "valor del bit", "de la entrada", "",              ""} },              // 1 (NOT)
+    { /*  1 */ "Buffer",                 1, 1, {"La salida es",  "siempre igual", "al valor  de",  "la entrada",    ""} },              // 1 (AND), 1 (OR), 2 (NOT, NOT)
+    { /*  2 */ "Puerta OR",              2, 1, {"La salida es",  "1 si al menos", "una  de  las",  "entradas es 1", ""} },              // 1 (OR)
+    { /*  3 */ "Puerta AND",             2, 1, {"La salida da",  "1 cuando las",  "dos entradas",  "son 1",         ""} },              // 1 (AND)
+    { /*  4 */ "Puerta XOR",             2, 1, {"La salida da",  "1 cuando las",  "dos entradas",  "son distintas", ""} },              // 1 (XOR)
+    { /*  5 */ "Puerta NOR",             2, 1, {"La salida da",  "1 cuando las",  "dos entradas",  "son 0",         ""} },              // 2 (OR, NOT)
+    { /*  6 */ "Puerta NAND",            2, 1, {"La salida da",  "siempre uno",   "excepto si la", "entrada es",    "igual a 11"} },    // 2 (AND, NOT)
+    { /*  7 */ "Permiso 1 bit",          2, 1, {"El primer bit", "de la entrada", "pasa si tiene", "permiso del",   "segundo bit"} },   // 1 (AND)
+    { /*  8 */ "Comparador",             2, 1, {"Devuelve 1 si", "las entradas",  "son iguales",   "(puerta XNOR)", ""} },              // 2 (XOR, NOT)
+    { /*  9 */ "Siempre 1",              1, 1, {"La salida da",  "siempre 1",     "sin importar",  "el valor de",   "la entrada"} },    // 2 (NOT, XOR)
+    { /* 10 */ "Semáforo",               2, 1, {"La salida da",  "1 si el bit 2", "vale 1 y el",   "bit 1 vale 0.", "La entrada=10"} }, // 2 (NOT, AND)
+    { /* 11 */ "¿Es par?",               2, 1, {"Devuelve 1 si", "el número de",  "la entrada es", "par (termina",  "en 0)"} },         // 1 (NOT)
+    { /* 12 */ "¿Menos que 2?",          2, 1, {"Devuelve 1 si", "el número de",  "la entrada es", "menor que 2",   "(00 ó 01)"} },     // 1 (NOT)
+    { /* 13 */ "¿Es impar?",             2, 1, {"Devuelve 1 si", "el número de",  "la entrada es", "impar (acaba",  "en 1)"} },         // 1 (AND), 1 (OR)
+    { /* 14 */ "Contraseña",             3, 1, {"La salida da",  "1 solamente",   "cuando la",     "entrada es",    "igual a 101"} },   // 3 (AND, NOT, AND)
+    { /* 15 */ "Selección",              3, 1, {"El bit 3 de",   "la entrada",    "decide cuál",   "bit pasará a",  "la salida"} },     // 4 (NOT, AND, AND, OR)
+    { /* 16 */ "Suma de 1 bit",          2, 2, {"Suma los dos",  "bits  de  la",  "entrada, y da", "el resultado",  ""} },              // 2 (AND, XOR)
+    { /* 17 */ "Palíndromo",             3, 1, {"La salida da",  "1 cuando la",   "entrada es un", "palíndromo",    ""} },              // 2 (XOR, NOT)
+    { /* 18 */ "Mayoría de 1s",          3, 1, {"La salida da",  "1 si más de",   "la mitad de",   "bits de la",    "entrada es 1"} },  // 5 (AND, AND, AND, OR, OR)
+    { /* 19 */ "Señal Única",            3, 1, {"Devuelve 1 si", "solamente una", "entrada está",  "activa",        ""} },              // 7 (XOR, NOT, XOR, NOT, AND, AND, OR)
+    { /* 20 */ "Contador",               3, 2, {"Escribe en la", "salida la",     "cantidad de",   "unos (1's) de", "la entrada"} },    //
+    { /* 21 */ "Suma 2 bits",            4, 3, {"Suma los dos",  "números  de 2", "bits, y da el", "resultado",     ""} },              //
+    { /* 22 */ "Decodificador",          2, 4, {"Enciende el",   "bit de salida", "indicado por",  "la entrada",    ""} },              //
+    { /* 23 */ "Selector 2bit",          5, 2, {"Elige cuál de", "las entradas",  "de 2 bits se",  "muestra a la",  "salida" } },       //
+    { /* 24 */ "Iguales o no?",          4, 1, {"La salida da",  "1 cuando las",  "2 entradas de", "2 bits son",    "iguales"} },       //
+    { /* 25 */ "Pasa la mayor",          4, 2, {"Muestra en la", "salida, la",    "entrada de 2",  "bits que sea",  "mayor"  } },       //
+    { /* 26 */ "Pasa la menor",          4, 2, {"Muestra en la", "salida, la",    "entrada de 2",  "bits más",      "pequeña"} },       //
+};  //  Nivel   XXXXXXXXXXXXX                    1111111111111    2222222222222    3333333333333    4444444444444    5555555555555
 
 // Evaluation is separated from levels structure, as PROGMEM doesn't work with dynamic expressions
 uint8_t evaluateLevelInput(uint8_t level, bits_t input)

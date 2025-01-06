@@ -20,4 +20,6 @@ void showLevelPlayingScreen(uint8_t level, uint8_t progress = 0, bool redraw = t
 
 void showLevelCompletionScreen(uint8_t level, bool redraw = true);
 
+void setDisplayPowerSave(bool state);
+
 #endif

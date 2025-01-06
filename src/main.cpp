@@ -71,6 +71,7 @@ void loop() {
                     showLevelSelectionScreen(currentLevel);
                 }
                 if (onEncoderPositionChanged()) {
+                    setPowerSaveMode(false);
                     currentLevel = getEncoderPosition();
                     loadLevel(currentLevel);
                     showLevelSelectionScreen(currentLevel, false);
@@ -85,6 +86,7 @@ void loop() {
                     Serial.print(F("Button pressed at pos: "));
                     Serial.println(getEncoderPosition());
 #endif
+                    setPowerSaveMode(false);
                     currentState = STATE_PLAYING;
                     ticksInState = -1;
                     startPlaying(1);
@@ -104,6 +106,7 @@ void loop() {
                 }
                 // Allow to transition back to level selection after 1.5s
                 if (onEncoderButtonPressed() && ticksInState >= 30) {
+                    setPowerSaveMode(false);
                     currentState = STATE_LEVEL_SELECTION;
                     setEncoderPosition(currentLevel);
                     setShiftRegistersOutput(0, 0);
@@ -112,6 +115,7 @@ void loop() {
                 }
                 // Turn input and output LED's accordingly if encoder is moved
                 if (onEncoderPositionChanged()) {
+                    setPowerSaveMode(false);
                     levelInput = getEncoderPosition();
                     progress = evaluateLevelProgress(currentLevel);
                     setShiftRegistersOutput(levelInput, evaluateLevelInput(currentLevel, levelInput));
@@ -120,14 +124,14 @@ void loop() {
                 }
                 // Check completion and refresh screen every 2s
                 // If the level is completed (all inputs and outputs match expected on level)
-                if (ticksInState > 60) {
+                if (ticksInState > 60 && ticksInState % 40 == 0) {
                     progress = evaluateLevelProgress(currentLevel);
                     setShiftRegistersOutput(levelInput, evaluateLevelInput(currentLevel, levelInput));
                     showLevelPlayingScreen(currentLevel, progress, false);
-                    ticksInState = 20;
 
                     // If progress is completed
                     if (progress == 100) {
+                        setPowerSaveMode(false);
                         setShiftRegistersOutput(0, 0);
                         currentState = STATE_COMPLETED;
                         ticksInState = -1;
@@ -156,6 +160,9 @@ void loop() {
                 break;
         }
         ticksInState++;
+        if (ticksInState == 20 * 20) {  // 20 seconds of inactivity
+            setPowerSaveMode(true);
+        }
     }
     delay(2);       // Power nap 2ms
 }

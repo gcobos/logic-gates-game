@@ -171,3 +171,18 @@ uint8_t evaluateLevelProgress(uint8_t level)
 #endif
     return progress;
 }
+
+void setPowerSaveMode(bool state)
+{
+    setDisplayPowerSave(state);
+    if (state) {
+        setShiftRegistersOutput(0, 0);
+        set_sleep_mode(SLEEP_MODE_STANDBY);
+        sleep_enable();
+        sleep_mode();
+        delay(5);
+    } else {
+
+    }
+    sleep_disable();
+}

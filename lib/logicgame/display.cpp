@@ -124,3 +124,8 @@ void showLevelCompletionScreen(uint8_t level, bool redraw)
         display.println(F("próximo nivel"));
     } while (display.nextPage());
 }
+
+void setDisplayPowerSave(bool state)
+{
+    display.setPowerSave(state);
+}

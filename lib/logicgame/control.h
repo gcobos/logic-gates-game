@@ -3,6 +3,8 @@
 
 #include <SPI.h>
 #include <PinChangeInterrupt.h>
+#include <avr/sleep.h>
+#include <avr/power.h>
 
 volatile static union {
   uint16_t data;
@@ -42,5 +44,8 @@ uint8_t getCircuitOutput();
 // the outputs of the board, for every combination of the input of the level, and
 // compare it against the expected values for the same inputs
 uint8_t evaluateLevelProgress(uint8_t level);
+
+// Set sleeping mode on or off
+void setPowerSaveMode(bool state);
 
 #endif
