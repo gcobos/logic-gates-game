@@ -149,11 +149,15 @@ void loop() {
                         startPlaying(3);
                     }
                 }
+                if (onEncoderPositionChanged()) {
+                    setPowerSaveMode(false);
+                }
                 if (onEncoderButtonPressed() && ticksInState > 40) {
 #ifdef DEBUG
                     Serial.print(F("Button pressed at pos: "));
                     Serial.println(getEncoderPosition());
 #endif
+                    setPowerSaveMode(false);
                     currentState = STATE_LEVEL_SELECTION;
                     ticksInState = -1;
                 }

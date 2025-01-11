@@ -28,13 +28,17 @@ const static level_t PROGMEM levels[] = {
     { /* 17 */ "Palíndromo",             3, 1, {"La salida da",  "1 cuando la",   "entrada es un", "palíndromo",    ""} },              // 2 (XOR, NOT)
     { /* 18 */ "Mayoría de 1s",          3, 1, {"La salida da",  "1 si más de",   "la mitad de",   "bits de la",    "entrada es 1"} },  // 5 (AND, AND, AND, OR, OR)
     { /* 19 */ "Señal Única",            3, 1, {"Devuelve 1 si", "solamente una", "entrada está",  "activa",        ""} },              // 7 (XOR, NOT, XOR, NOT, AND, AND, OR)
-    { /* 20 */ "Contador",               3, 2, {"Escribe en la", "salida la",     "cantidad de",   "unos (1's) de", "la entrada"} },    //
-    { /* 21 */ "Suma 2 bits",            4, 3, {"Suma los dos",  "números  de 2", "bits, y da el", "resultado",     ""} },              //
-    { /* 22 */ "Decodificador",          2, 4, {"Enciende el",   "bit de salida", "indicado por",  "la entrada",    ""} },              //
-    { /* 23 */ "Selector 2bit",          5, 2, {"Elige cuál de", "las entradas",  "de 2 bits se",  "muestra a la",  "salida" } },       //
-    { /* 24 */ "Iguales o no?",          4, 1, {"La salida da",  "1 cuando las",  "2 entradas de", "2 bits son",    "iguales"} },       //
+    { /* 20 */ "Contador",               3, 2, {"Escribe en la", "salida la",     "cantidad de",   "unos (1's) de", "la entrada"} },    // 5 (XOR, XOR, AND, AND, OR)
+    { /* 21 */ "Decodificador",          2, 4, {"Enciende el",   "bit de salida", "indicado por",  "la entrada",    ""} },              //
+    { /* 22 */ "Selector 2bit",          5, 2, {"Elige cuál de", "las entradas",  "de 2 bits se",  "muestra a la",  "salida" } },       //
+    { /* 23 */ "Iguales o no?",          4, 1, {"La salida da",  "1 cuando las",  "2 entradas de", "2 bits son",    "iguales"} },       //
+    { /* 24 */ "Suma de 2 bit",          4, 3, {"Suma los dos",  "números  de 2", "bits, y da el", "resultado",     ""} },              // 
     { /* 25 */ "Pasa la mayor",          4, 2, {"Muestra en la", "salida, la",    "entrada de 2",  "bits que sea",  "mayor"  } },       //
     { /* 26 */ "Pasa la menor",          4, 2, {"Muestra en la", "salida, la",    "entrada de 2",  "bits más",      "pequeña"} },       //
+    { /* 27 */ "Añade uno",              4, 5, {"Añade uno a",   "la entrada y",  "muestra el",    "resultado en",  "la salida"} },     //
+    { /* 28 */ "Resta uno",              4, 5, {"Resta uno a",   "la entrada y",  "muestra el",    "resultado en",  "la salida"} },     //
+    { /* 29 */ "Multiplica x2",          4, 5, {"Multiplica la", "entrada por 2", "y muestra el",  "resultado a",   "la salida"} },     //
+    { /* 30 */ "Divide por 2",           4, 3, {"Divide entre",  "2 el valor de", "la entrada y",  "muestra el",    "resultado"} },     //
 };  //  Nivel   XXXXXXXXXXXXX                    1111111111111    2222222222222    3333333333333    4444444444444    5555555555555
 
 // Evaluation is separated from levels structure, as PROGMEM doesn't work with dynamic expressions
@@ -65,12 +69,16 @@ uint8_t evaluateLevelInput(uint8_t level, bits_t input)
     case 18: o = ((i.a & i.b) | (i.b & i.c) | (i.a & i.c)); break;              // Mayoría de 1s
     case 19: o = (i.a&~(i.b|i.c))|(i.b&~(i.a|i.c))|(i.c&~(i.a|i.b)); break;     // Señal Única
     case 20: o = (i.a + i.b + i.c); break;                                      // Contador de bits
-    case 21: o = (i.b << 1 | i.a) + (i.d << 1 | i.c); break;                    // Suma de 2 bits
-    case 22: o = (1 << (i.b << 1 | i.a)); break;                                // Decodificador
-    case 23: o = (i.e)?(i.d<<1)|i.c:(i.b<<1)|i.a; break;                        // Selector 2bit
-    case 24: o = (((i.d<<1)|i.c)==((i.b<<1)|i.a))?1:0; break;                   // Iguales o no?
+    case 21: o = (1 << (i.b << 1 | i.a)); break;                                // Decodificador
+    case 22: o = (i.e)?(i.d<<1)|i.c:(i.b<<1)|i.a; break;                        // Selector 2bit
+    case 23: o = (((i.d<<1)|i.c)==((i.b<<1)|i.a))?1:0; break;                   // Iguales o no?
+    case 24: o = (i.b << 1 | i.a) + (i.d << 1 | i.c); break;                    // Suma de 2 bits
     case 25: o = ((i.d<<1|i.c)>(i.b<<1|i.a))?(i.d<<1|i.c):(i.b<<1|i.a);break;   // Cuál es mayor
     case 26: o = ((i.d<<1|i.c)<(i.b<<1|i.a))?(i.d<<1|i.c):(i.b<<1|i.a);break;   // Cuál es menor
+    case 27: o = i.data + 1; break;                                             // Add 1
+    case 28: o = i.data - 1; break;                                             // Substract 1
+    case 29: o = i.data << 1; break;                                            // Multiply by 2
+    case 30: o = i.data >> 1; break;                                            // Divide by 2
     default: o = 0;
     }
     return o & ((1 << level_data.output_bits) - 1);

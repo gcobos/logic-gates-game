@@ -129,10 +129,9 @@ void setShiftRegistersOutput(uint8_t input, uint8_t output, uint8_t check)
     PORTB |= (1 << PB2); PORTB &= ~(1 << PB2);
 }
 
-uint8_t getCircuitOutput()
+static uint8_t getCircuitOutput()
 {
-    register uint8_t v = PINC;
-    return ((v&0b11000000)>>2)|(v&0b1111);
+    return ((analogRead(A6)>127)<<4)|(PINC&0b1111);
 }
 
 uint8_t evaluateLevelProgress(uint8_t level)
@@ -150,8 +149,7 @@ uint8_t evaluateLevelProgress(uint8_t level)
         SPI.transfer16(regs.data);
         PORTB |= (1 << PB2); PORTB &= ~(1 << PB2);
         // Read all analog inputs (circuit's output) removing A4 and A5
-        // actual = getCircuitOutput();
-        actual = ((PINC&0b11000000)>>2)|(PINC&0b1111);
+        actual = getCircuitOutput();
 #ifdef DEBUG
         Serial.print(F("For input "));
         Serial.print(i, BIN);
@@ -176,7 +174,7 @@ void setPowerSaveMode(bool state)
 {
     setDisplayPowerSave(state);
     if (state) {
-        setShiftRegistersOutput(0, 0);
+        //setShiftRegistersOutput(0, 0);
         set_sleep_mode(SLEEP_MODE_STANDBY);
         sleep_enable();
         sleep_mode();
